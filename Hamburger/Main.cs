@@ -17,34 +17,38 @@ namespace Hamburger
         public MenuEkle menuEkle;
         public ExtraMalzemeEkle extraMalzemeEkle;
         public Payment payment;
-        public Main(ref int userID)
+        public Main(int userID,string title)
         {
             InitializeComponent();
             this.userID = userID;
+            this.title = title;
         }
         int userID;
+        string title;
         public void Main_Load(object sender, EventArgs e)
         {
-            siparis = new Hamburgerci(ref userID);
-            siparis.MdiParent = this;
-            siparis.Dock = DockStyle.Fill;
-            tumSiparisler = new TumSiparisler(ref userID);
-            tumSiparisler.MdiParent = this;
-            tumSiparisler.Dock = DockStyle.Fill;
-            tumSiparisler.VisibleChanged += TumSiparisler_VisibleChanged;
+            siparis = new Hamburgerci(userID);
+            tumSiparisler = new TumSiparisler(userID);
             menuEkle = new MenuEkle();
-            menuEkle.MdiParent = this;
-            menuEkle.Dock = DockStyle.Fill;
             extraMalzemeEkle = new ExtraMalzemeEkle();
-            extraMalzemeEkle.MdiParent = this;
-            extraMalzemeEkle.Dock = DockStyle.Fill;
             payment = new Payment();
-            payment.MdiParent = this;
-            payment.Dock = DockStyle.Fill;
+            tumSiparisler.VisibleChanged += TumSiparisler_VisibleChanged;
             payment.VisibleChanged += Payment_VisibleChanged;
+            MdiChildren(new Form[] { siparis, tumSiparisler, menuEkle, extraMalzemeEkle, payment });
             siparis.Show();
+            if (title!="Admin")
+            {
+                ürünYönetimiToolStripMenuItem.Visible = false;
+            }
         }
-
+        void MdiChildren(Form[] mdiChildren)
+        {
+            foreach (Form child in mdiChildren)
+            {
+                child.MdiParent = this;
+                child.Dock = DockStyle.Fill;
+            }
+        }
         private void TumSiparisler_VisibleChanged(object sender, EventArgs e)
         {
             if (!tumSiparisler.Visible)

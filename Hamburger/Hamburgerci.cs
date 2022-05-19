@@ -24,7 +24,7 @@ namespace Hamburger
         string qMenus = "SELECT Name FROM Menus";
         string qSizes = "SELECT Name FROM Sizes";
         string qExtras = "SELECT Name FROM Extras";
-        public Hamburgerci(ref int userID)
+        public Hamburgerci(int userID)
         {
             InitializeComponent();
             this.userID = userID;
@@ -41,15 +41,15 @@ namespace Hamburger
             LoadSizes();
             LoadExtras();
             query.Parameters.AddWithValue("@UserID", userID);
-            query.Parameters.AddWithValue("@NewOrderID",1);
-            query.Parameters.AddWithValue("@MenuName","");
-            query.Parameters.AddWithValue("@SizeName","");
-            query.Parameters.AddWithValue("@ExtraName","");
-            query.Parameters.AddWithValue("@Amount","");
-            listView1.Columns.Add("Menu",100);
-            listView1.Columns.Add("Size",100);
-            listView1.Columns.Add("Extra",100);
-            listView1.Columns.Add("Amount",100);
+            query.Parameters.AddWithValue("@NewOrderID", 1);
+            query.Parameters.AddWithValue("@MenuName", "");
+            query.Parameters.AddWithValue("@SizeName", "");
+            query.Parameters.AddWithValue("@ExtraName", "");
+            query.Parameters.AddWithValue("@Amount", "");
+            listView1.Columns.Add("Menu", 100);
+            listView1.Columns.Add("Size", 100);
+            listView1.Columns.Add("Extra", 100);
+            listView1.Columns.Add("Amount", 100);
         }
 
         void LoadMenus()
@@ -138,13 +138,13 @@ namespace Hamburger
         }
         private void btnSubmitOrder_Click(object sender, EventArgs e)
         {
-            if (listView1.Items.Count==0)
+            if (listView1.Items.Count == 0)
             {
-                MessageBox.Show("Please Add At Least One Order!");
+                MessageBox.Show("Please Add At Least One Menu!");
                 return;
             }
             query.CommandText = qAddNewOrder;
-            if (conHamburger.State==ConnectionState.Closed)
+            if (conHamburger.State == ConnectionState.Closed)
             {
                 conHamburger.Open();
                 newOrderID = int.Parse(query.ExecuteScalar().ToString());
@@ -160,7 +160,7 @@ namespace Hamburger
             query.CommandText = qNewOrderDetails;
             foreach (ListViewItem order in listView1.Items)
             {
-                extrasArray=order.SubItems[2].Text.Split(',');
+                extrasArray = order.SubItems[2].Text.Split(',');
                 foreach (string extra in extrasArray)
                 {
                     query.Parameters["@NewOrderID"].Value = newOrderID;
@@ -178,7 +178,7 @@ namespace Hamburger
                 order.Remove();
             }
         }
-        string sizeName,extras;
+        string sizeName, extras;
         private void button1_Click(object sender, EventArgs e)
         {
             extras = "";
@@ -194,12 +194,12 @@ namespace Hamburger
             {
                 if (extra.Checked)
                 {
-                    extras += extra.Text+",";
+                    extras += extra.Text + ",";
                     extra.Checked = false;
                 }
             }
             extras = extras.TrimEnd(',');
-            listView1.Items.Add(new ListViewItem(new string[] { cmbMenu.Text, sizeName,extras, ((int)numAmount.Value).ToString() }));
+            listView1.Items.Add(new ListViewItem(new string[] { cmbMenu.Text, sizeName, extras, ((int)numAmount.Value).ToString() }));
             numAmount.Value = 1;
             cmbMenu.SelectedIndex = -1;
         }
@@ -207,6 +207,35 @@ namespace Hamburger
         private void Hamburgerci_VisibleChanged(object sender, EventArgs e)
         {
             Clear();
+        }
+        bool removed;
+        private void btnRemoveOrders_Click(object sender, EventArgs e)
+        {
+            if (listView1.Items.Count==0)
+            {
+                MessageBox.Show("Please Add At Least One Menu To Order!");
+                return;
+            }
+            if (MessageBox.Show("Are You Sure?", "Removing Selected Menus!", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                foreach (ListViewItem order in listView1.Items)
+                {
+                    if (order.Checked)
+                    {
+                        order.Remove();
+                        removed = true;
+                    }
+                }
+            }
+            if (removed)
+            {
+                MessageBox.Show("Removed Selected Menus!");
+                removed = false;
+            }
+            else
+            {
+                MessageBox.Show("You Did Not Selected Any Menus To Remove!");
+            }
         }
 
         void Clear()
@@ -221,6 +250,7 @@ namespace Hamburger
             }
             listView1.Items.Clear();
             cmbMenu.SelectedIndex = -1;
+            numAmount.Value = 1;
         }
     }
 }

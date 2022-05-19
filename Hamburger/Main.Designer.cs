@@ -65,21 +65,21 @@ namespace Hamburger
             // tümSiparişlerToolStripMenuItem
             // 
             this.tümSiparişlerToolStripMenuItem.Name = "tümSiparişlerToolStripMenuItem";
-            this.tümSiparişlerToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.tümSiparişlerToolStripMenuItem.Size = new System.Drawing.Size(204, 26);
             this.tümSiparişlerToolStripMenuItem.Text = "Tüm Siparişler";
             this.tümSiparişlerToolStripMenuItem.Click += new System.EventHandler(this.tümSiparişlerToolStripMenuItem_Click);
             // 
             // siparişVerToolStripMenuItem
             // 
             this.siparişVerToolStripMenuItem.Name = "siparişVerToolStripMenuItem";
-            this.siparişVerToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.siparişVerToolStripMenuItem.Size = new System.Drawing.Size(204, 26);
             this.siparişVerToolStripMenuItem.Text = "Sipariş Ver";
             this.siparişVerToolStripMenuItem.Click += new System.EventHandler(this.siparişVerToolStripMenuItem_Click);
             // 
             // kullanıcıDeğiştirToolStripMenuItem
             // 
             this.kullanıcıDeğiştirToolStripMenuItem.Name = "kullanıcıDeğiştirToolStripMenuItem";
-            this.kullanıcıDeğiştirToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.kullanıcıDeğiştirToolStripMenuItem.Size = new System.Drawing.Size(204, 26);
             this.kullanıcıDeğiştirToolStripMenuItem.Text = "Kullanıcı Değiştir";
             this.kullanıcıDeğiştirToolStripMenuItem.Click += new System.EventHandler(this.kullanıcıDeğiştirToolStripMenuItem_Click);
             // 
@@ -95,14 +95,14 @@ namespace Hamburger
             // menülerToolStripMenuItem
             // 
             this.menülerToolStripMenuItem.Name = "menülerToolStripMenuItem";
-            this.menülerToolStripMenuItem.Size = new System.Drawing.Size(221, 26);
+            this.menülerToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.menülerToolStripMenuItem.Text = "Menü Ekle";
             this.menülerToolStripMenuItem.Click += new System.EventHandler(this.menülerToolStripMenuItem_Click);
             // 
             // extraMalzemeEkleToolStripMenuItem
             // 
             this.extraMalzemeEkleToolStripMenuItem.Name = "extraMalzemeEkleToolStripMenuItem";
-            this.extraMalzemeEkleToolStripMenuItem.Size = new System.Drawing.Size(221, 26);
+            this.extraMalzemeEkleToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.extraMalzemeEkleToolStripMenuItem.Text = "Extra Malzeme Ekle";
             this.extraMalzemeEkleToolStripMenuItem.Click += new System.EventHandler(this.extraMalzemeEkleToolStripMenuItem_Click);
             // 

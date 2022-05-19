@@ -34,8 +34,9 @@ namespace Hamburger
         SqlDataReader dr;
         string qGetCurrentUser = "SELECT Username,Password FROM [Current User]";
         string qUpdateCurrentUser = "UPDATE [Current User] SET Username=@Username,Password=@Password";
-        string qGetUserID = "SELECT ID,FirstName,LastName FROM Users WHERE Username=@Username AND Password=@Password";
+        string qGetUserID = "SELECT ID,FirstName,LastName,Title FROM Users WHERE Username=@Username AND Password=@Password";
         int userID;
+        string title;
         private void chkShowHide_CheckedChanged(object sender, EventArgs e)
         {
             if (!chkShowHide.Checked)
@@ -65,6 +66,7 @@ namespace Hamburger
                         {
                             userID = dr.GetInt32(0);
                             MessageBox.Show("Welcome " + dr["FirstName"] + " " + dr["LastName"]);
+                            title = dr["Title"].ToString();
                         }
                         dr.Close();
                         if (chkUsername.Checked)
@@ -77,7 +79,7 @@ namespace Hamburger
                             }
                             query.ExecuteNonQuery();
                         }
-                        main = new Main(ref userID);
+                        main = new Main(userID,title);
                         main.VisibleChanged += Main_VisibleChanged;
                         this.Hide();
                         main.Show();

@@ -40,8 +40,8 @@ namespace Hamburger
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.btnSubmitOrder = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
-            this.btnAddOrder = new System.Windows.Forms.Button();
-            this.btnRemoveOrders = new System.Windows.Forms.Button();
+            this.btnAddMenu = new System.Windows.Forms.Button();
+            this.btnRemoveMenus = new System.Windows.Forms.Button();
             this.gboxSize.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numAmount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -164,7 +164,7 @@ namespace Hamburger
             this.btnSubmitOrder.Name = "btnSubmitOrder";
             this.btnSubmitOrder.Size = new System.Drawing.Size(274, 23);
             this.btnSubmitOrder.TabIndex = 6;
-            this.btnSubmitOrder.Text = "Siparişi Onayla";
+            this.btnSubmitOrder.Text = "Submit Order";
             this.btnSubmitOrder.UseVisualStyleBackColor = false;
             this.btnSubmitOrder.Click += new System.EventHandler(this.btnSubmitOrder_Click);
             // 
@@ -190,33 +190,33 @@ namespace Hamburger
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             // 
-            // btnAddOrder
+            // btnAddMenu
             // 
-            this.btnAddOrder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.btnAddMenu.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAddOrder.BackColor = System.Drawing.Color.Transparent;
-            this.btnAddOrder.ForeColor = System.Drawing.Color.Black;
-            this.btnAddOrder.Location = new System.Drawing.Point(719, 410);
-            this.btnAddOrder.Name = "btnAddOrder";
-            this.btnAddOrder.Size = new System.Drawing.Size(274, 23);
-            this.btnAddOrder.TabIndex = 6;
-            this.btnAddOrder.Text = "Sipariş Ekle";
-            this.btnAddOrder.UseVisualStyleBackColor = false;
-            this.btnAddOrder.Click += new System.EventHandler(this.button1_Click);
+            this.btnAddMenu.BackColor = System.Drawing.Color.Transparent;
+            this.btnAddMenu.ForeColor = System.Drawing.Color.Black;
+            this.btnAddMenu.Location = new System.Drawing.Point(719, 410);
+            this.btnAddMenu.Name = "btnAddMenu";
+            this.btnAddMenu.Size = new System.Drawing.Size(274, 23);
+            this.btnAddMenu.TabIndex = 6;
+            this.btnAddMenu.Text = "Add Menu To Order";
+            this.btnAddMenu.UseVisualStyleBackColor = false;
+            this.btnAddMenu.Click += new System.EventHandler(this.button1_Click);
             // 
-            // btnRemoveOrders
+            // btnRemoveMenus
             // 
-            this.btnRemoveOrders.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.btnRemoveMenus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRemoveOrders.BackColor = System.Drawing.Color.Red;
-            this.btnRemoveOrders.ForeColor = System.Drawing.Color.White;
-            this.btnRemoveOrders.Location = new System.Drawing.Point(297, 410);
-            this.btnRemoveOrders.Name = "btnRemoveOrders";
-            this.btnRemoveOrders.Size = new System.Drawing.Size(416, 23);
-            this.btnRemoveOrders.TabIndex = 6;
-            this.btnRemoveOrders.Text = "Remove Selected Orders";
-            this.btnRemoveOrders.UseVisualStyleBackColor = false;
-            this.btnRemoveOrders.Click += new System.EventHandler(this.button1_Click);
+            this.btnRemoveMenus.BackColor = System.Drawing.Color.Red;
+            this.btnRemoveMenus.ForeColor = System.Drawing.Color.White;
+            this.btnRemoveMenus.Location = new System.Drawing.Point(297, 410);
+            this.btnRemoveMenus.Name = "btnRemoveMenus";
+            this.btnRemoveMenus.Size = new System.Drawing.Size(416, 23);
+            this.btnRemoveMenus.TabIndex = 6;
+            this.btnRemoveMenus.Text = "Remove Selected Menus";
+            this.btnRemoveMenus.UseVisualStyleBackColor = false;
+            this.btnRemoveMenus.Click += new System.EventHandler(this.btnRemoveOrders_Click);
             // 
             // Hamburgerci
             // 
@@ -229,8 +229,8 @@ namespace Hamburger
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.listView1);
             this.Controls.Add(this.btnSubmitOrder);
-            this.Controls.Add(this.btnRemoveOrders);
-            this.Controls.Add(this.btnAddOrder);
+            this.Controls.Add(this.btnRemoveMenus);
+            this.Controls.Add(this.btnAddMenu);
             this.Controls.Add(this.numAmount);
             this.Controls.Add(this.flpExtras);
             this.Controls.Add(this.label2);
@@ -264,8 +264,8 @@ namespace Hamburger
         private System.Windows.Forms.FlowLayoutPanel flpSizes;
         public System.Windows.Forms.Button btnSubmitOrder;
         public System.Windows.Forms.ListView listView1;
-        public System.Windows.Forms.Button btnAddOrder;
-        public System.Windows.Forms.Button btnRemoveOrders;
+        public System.Windows.Forms.Button btnAddMenu;
+        public System.Windows.Forms.Button btnRemoveMenus;
     }
 }
 

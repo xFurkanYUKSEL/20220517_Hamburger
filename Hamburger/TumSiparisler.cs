@@ -21,7 +21,7 @@ namespace Hamburger
         SqlCommand query = new SqlCommand();
         string qMonthly = "SELECT SUM([Total Price]) FROM [Orders Last 30 Days] WHERE [User ID]=@UserID";
         string qTotalRemaining = "SELECT SUM([Total Price]) FROM Orders WHERE [User ID]=@UserID AND [Order State ID]=1";
-        public TumSiparisler(ref int userID)
+        public TumSiparisler(int userID)
         {
             InitializeComponent();
             this.userID = userID;
