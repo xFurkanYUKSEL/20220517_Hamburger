@@ -7,30 +7,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Data.SqlClient;
+using System.Configuration;
 
 namespace Hamburger
-{
+{ 
     public partial class Main : Form
     {
+        SqlConnection sqlHamburger;
         public Hamburgerci siparis;
         public TumSiparisler tumSiparisler;
         public MenuEkle menuEkle;
         public ExtraMalzemeEkle extraMalzemeEkle;
         public Payment payment;
-        public Main(int userID,string title)
+        public Main(int userID,string title,SqlConnection sqlHamburger)
         {
             InitializeComponent();
             this.userID = userID;
             this.title = title;
+            this.sqlHamburger = sqlHamburger;
         }
         int userID;
         string title;
         public void Main_Load(object sender, EventArgs e)
         {
-            siparis = new Hamburgerci(userID);
+            siparis = new Hamburgerci(userID,sqlHamburger);
             tumSiparisler = new TumSiparisler(userID);
-            menuEkle = new MenuEkle();
-            extraMalzemeEkle = new ExtraMalzemeEkle();
+            menuEkle = new MenuEkle(sqlHamburger);
+            extraMalzemeEkle = new ExtraMalzemeEkle(sqlHamburger);
             payment = new Payment();
             tumSiparisler.VisibleChanged += TumSiparisler_VisibleChanged;
             payment.VisibleChanged += Payment_VisibleChanged;

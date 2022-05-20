@@ -23,13 +23,13 @@ namespace Hamburger
         {
             if (!main.Visible)
             {
+                LoadUserDetails();
                 this.Show();
                 main.Dispose();
             }
         }
-
         Main main;
-        SqlConnection hamburger = new SqlConnection(ConfigurationManager.ConnectionStrings["hamburger"].ConnectionString);
+        SqlConnection sqlHamburger = new SqlConnection(ConfigurationManager.ConnectionStrings["hamburger"].ConnectionString);
         SqlCommand query = new SqlCommand();
         SqlDataReader dr;
         string qGetCurrentUser = "SELECT Username,Password FROM [Current User]";
@@ -53,12 +53,12 @@ namespace Hamburger
         {
             try
             {
-                if (hamburger.State == ConnectionState.Closed)
+                if (sqlHamburger.State == ConnectionState.Closed)
                 {
                     query.CommandText = qGetUserID;
                     query.Parameters["@Username"].Value = txtUserName.Text;
                     query.Parameters["@Password"].Value = txtPassWord.Text;
-                    hamburger.Open();
+                    sqlHamburger.Open();
                     dr = query.ExecuteReader();
                     if (dr.HasRows)
                     {
@@ -69,20 +69,19 @@ namespace Hamburger
                             title = dr["Title"].ToString();
                         }
                         dr.Close();
-                        if (chkUsername.Checked)
+                        query.CommandText = qUpdateCurrentUser;
+                        query.Parameters["@Username"].Value = "";
+                        query.Parameters["@Password"].Value = "";
+                        if (chkPassword.Checked)
                         {
-                            query.CommandText = qUpdateCurrentUser;
-                            query.Parameters["@Password"].Value = "";
-                            if (chkPassword.Checked)
-                            {
-                                query.Parameters["@Password"].Value = txtPassWord.Text;
-                            }
-                            query.ExecuteNonQuery();
+                            query.Parameters["@Password"].Value = txtPassWord.Text;
+                            query.Parameters["@Username"].Value = txtUserName.Text;
                         }
-                        main = new Main(userID,title);
-                        main.VisibleChanged += Main_VisibleChanged;
-                        this.Hide();
-                        main.Show();
+                        else if (chkUsername.Checked)
+                        {
+                            query.Parameters["@Username"].Value = txtUserName.Text;
+                        }
+                        query.ExecuteNonQuery();
                     }
                     else
                     {
@@ -96,26 +95,34 @@ namespace Hamburger
             }
             finally
             {
-                hamburger.Close();
+                sqlHamburger.Close();
+                main = new Main(userID, title, sqlHamburger);
+                main.VisibleChanged += Main_VisibleChanged;
+                Hide();
+                main.Show();
             }
 
         }
-
+        void Query()
+        {
+            query.Connection = sqlHamburger;
+            query.Parameters.AddWithValue("@Username", txtUserName.Text);
+            query.Parameters.AddWithValue("@Password", txtPassWord.Text);
+        }
         private void LoginForm_Load(object sender, EventArgs e)
         {
+            Query();
             LoadUserDetails();
         }
         void LoadUserDetails()
         {
+            chkShowHide.Checked = false;
             try
             {
-                query.Connection = hamburger;
                 query.CommandText = qGetCurrentUser;
-                query.Parameters.AddWithValue("@Username", txtUserName.Text);
-                query.Parameters.AddWithValue("@Password", txtPassWord.Text);
-                if (hamburger.State == ConnectionState.Closed)
+                if (sqlHamburger.State == ConnectionState.Closed)
                 {
-                    hamburger.Open();
+                    sqlHamburger.Open();
                     dr = query.ExecuteReader();
                     if (dr.HasRows)
                     {
@@ -123,6 +130,14 @@ namespace Hamburger
                         {
                             txtUserName.Text = dr["Username"].ToString();
                             txtPassWord.Text = dr["Password"].ToString();
+                            if (txtPassWord.Text.Length > 0)
+                            {
+                                chkPassword.Checked = true;
+                            }
+                            else if (txtUserName.Text.Length > 0)
+                            {
+                                chkUsername.Checked = true;
+                            }
                         }
                     }
                     dr.Close();
@@ -134,7 +149,7 @@ namespace Hamburger
             }
             finally
             {
-                hamburger.Close();
+                sqlHamburger.Close();
             }
         }
 
@@ -156,7 +171,7 @@ namespace Hamburger
 
         private void LoginForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (main==null)
+            if (main == null)
             {
                 if (MessageBox.Show("Are You Really Sure?", "Closing!", MessageBoxButtons.YesNo) == DialogResult.No)
                 {

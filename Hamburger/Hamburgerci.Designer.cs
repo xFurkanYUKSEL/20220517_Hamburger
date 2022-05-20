@@ -122,8 +122,10 @@ namespace Hamburger
             0,
             0});
             this.numAmount.Name = "numAmount";
+            this.numAmount.ReadOnly = true;
             this.numAmount.Size = new System.Drawing.Size(222, 22);
             this.numAmount.TabIndex = 5;
+            this.numAmount.TabStop = false;
             this.numAmount.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.numAmount.Value = new decimal(new int[] {
             1,

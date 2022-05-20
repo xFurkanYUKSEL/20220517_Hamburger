@@ -7,15 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static Hamburger.Hamburgerci;
+using System.Data.SqlClient;
+using System.Configuration;
 namespace Hamburger
 {
     public partial class ExtraMalzemeEkle : Form
     {
-        public ExtraMalzemeEkle()
+        public ExtraMalzemeEkle(SqlConnection sqlHamburger)
         {
             InitializeComponent();
+            this.sqlHamburger = sqlHamburger;
         }
+        SqlConnection sqlHamburger;
         private void ExtraMalzemeEkle_Load(object sender, EventArgs e)
         {
         }

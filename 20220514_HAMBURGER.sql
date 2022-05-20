@@ -160,7 +160,7 @@ END
 GO
 DECLARE @OrderID INT
 EXEC AddNewOrder 1,@OrderID OUTPUT
-SELECT @OrderID 'Order ID'
+SELECT @OrderID
 GO
 CREATE OR ALTER PROCEDURE NewOrder
 @OrderID INT,
@@ -196,12 +196,12 @@ ALTER COLUMN Title NVARCHAR(20) NOT NULL
 GO
 CREATE OR ALTER TRIGGER Admin
 ON Users
-FOR INSERT
+FOR INSERT,DELETE
 AS
 BEGIN
 IF ((SELECT Title FROM inserted)='Admin')
 BEGIN
-PRINT 'CANT INSERT A USER THAT TITLE="ADMIN"'
+PRINT 'CAN NOT INSERT A USER THAT TITLE="ADMIN"'
 ROLLBACK
 END
 END
@@ -213,4 +213,61 @@ CREATE VIEW [Orders Last 30 Days]
 AS
 SELECT * FROM Orders
 WHERE [Order Date] BETWEEN DATEADD(DAY,-30,GETDATE()) AND GETDATE()
+GO
+ALTER TABLE Users
+ADD IsDeleted BIT NOT NULL DEFAULT 0
+GO
+CREATE OR ALTER TRIGGER IsDeleted
+ON Users
+INSTEAD OF DELETE
+AS
+BEGIN
+IF ('baþtavþýn' IN(SELECT Username FROM deleted))
+BEGIN
+PRINT 'baþtavþýn IS PERMANENT ADMIN OF THIS SERVER! YOU CAN NOT DELETE HER!'
+RETURN
+END
+UPDATE Users
+SET IsDeleted=1
+WHERE ID IN(SELECT ID FROM deleted WHERE NOT Username='baþtavþýn')
+END
+
+GO
+TRUNCATE TABLE [Order Details]
+GO
+ALTER TABLE [dbo].[Order Details] 
+DROP CONSTRAINT [FK_Orders_OrderDetails]
+GO
+TRUNCATE TABLE Orders
+GO
+ALTER TABLE [Order Details]
+ADD CONSTRAINT FK_Orders_OrderDetails
+FOREIGN KEY([Order ID]) REFERENCES Orders(ID)
+GO
+ALTER TABLE [Order Details]
+ADD [Person ID] INT NOT NULL
+GO
+ALTER   PROCEDURE [dbo].[NewOrder]
+@OrderID INT,
+@MenuName NVARCHAR(20),
+@SizeName NVARCHAR(10),
+@ExtraName NVARCHAR(20),
+@Amount TINYINT,
+@PersonID INT
+AS
+BEGIN TRANSACTION
+BEGIN TRY
+INSERT INTO [Order Details]([Order ID],[Menu ID],[Size ID],[Extra ID],Amount,[Person ID])
+VALUES(@OrderID,(SELECT ID FROM Menus WHERE Name=@MenuName),(SELECT ID FROM Sizes WHERE Name=@SizeName),(SELECT ID FROM Extras WHERE Name=@ExtraName),@Amount,@PersonID)
+UPDATE Orders
+SET [Total Price]=(SELECT (M.Price*S.Value+SUM(E.Price))*OD.Amount  FROM [Order Details] OD JOIN Menus M ON M.ID=OD.[Menu ID] JOIN Extras E ON E.ID=OD.[Extra ID] JOIN Sizes S ON S.ID=OD.[Size ID] WHERE OD.[Order ID]=@OrderID GROUP BY M.Price,S.Value,OD.Amount,OD.[Menu ID],OD.[Size ID])
+WHERE ID=@OrderID
+COMMIT
+END TRY
+BEGIN CATCH
+ROLLBACK
+END CATCH
+GO
+CREATE UNIQUE INDEX IDX_OrderDetails
+ON [Order Details]([Order ID],[Menu ID],[Size ID],[Extra ID],Amount,[Person ID])
 GO
