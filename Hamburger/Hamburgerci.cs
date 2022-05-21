@@ -16,20 +16,21 @@ namespace Hamburger
     public partial class Hamburgerci : Form
     {
         SqlConnection sqlHamburger;
-        SqlCommand query = new SqlCommand();
+        SqlCommand query;
         SqlDataReader dr;
         int newOrderID;
         string qAddNewOrder = "DECLARE @OrderID INT EXEC AddNewOrder @UserID, @OrderID OUTPUT SELECT @OrderID";
         string qNewOrderDetails = "EXEC NewOrder @NewOrderID,@MenuName,@SizeName,@ExtraName,@Amount,@PersonID";
         string qMenus = "SELECT Name FROM Menus";
         string qSizes = "SELECT Name FROM Sizes";
-        string qExtras = "SELECT Name FROM Extras";
-        public Hamburgerci(int userID, SqlConnection sqlHamburger)
+        string qExtras = "SELECT Name FROM Extras WHERE NOT Name=''";
+        public Hamburgerci(int userID, SqlConnection sqlHamburger,SqlCommand query)
         {
             InitializeComponent();
             this.userID = userID;
             this.sqlHamburger = sqlHamburger;
             this.sqlHamburger.Close();
+            this.query = query;
         }
         int userID, personID = 1;
         private void Siparis_Load(object sender, EventArgs e)
@@ -38,17 +39,9 @@ namespace Hamburger
         }
         void HamburgerciLoad()
         {
-            query.Connection = sqlHamburger;
             LoadMenus();
             LoadSizes();
             LoadExtras();
-            query.Parameters.AddWithValue("@UserID", userID);
-            query.Parameters.AddWithValue("@NewOrderID", 1);
-            query.Parameters.AddWithValue("@MenuName", "");
-            query.Parameters.AddWithValue("@SizeName", "");
-            query.Parameters.AddWithValue("@ExtraName", "");
-            query.Parameters.AddWithValue("@Amount", "");
-            query.Parameters.AddWithValue("@PersonID", 1);
             listView1.Columns.Add("Menu", 150);
             listView1.Columns.Add("Size", 100);
             listView1.Columns.Add("Extra", 200);
@@ -190,22 +183,29 @@ namespace Hamburger
         string[] extrasArray;
         void OrderDetails()
         {
-            query.CommandText = qNewOrderDetails;
-            foreach (ListViewItem order in listView1.Items)
+            try
             {
-                extrasArray = order.SubItems[2].Text.Split(',');
-                foreach (string extra in extrasArray)
+                query.CommandText = qNewOrderDetails;
+                foreach (ListViewItem order in listView1.Items)
                 {
-                    query.Parameters["@NewOrderID"].Value = newOrderID;
-                    query.Parameters["@MenuName"].Value = order.SubItems[0].Text;
-                    query.Parameters["@SizeName"].Value = order.SubItems[1].Text;
-                    query.Parameters["@ExtraName"].Value = extra;
-                    query.Parameters["@Amount"].Value = byte.Parse(order.SubItems[3].Text);
-                    query.Parameters["@PersonID"].Value = personID;
-                    query.ExecuteNonQuery();
+                    extrasArray = order.SubItems[2].Text.Split(',');
+                    foreach (string extra in extrasArray)
+                    {
+                        query.Parameters["@NewOrderID"].Value = newOrderID;
+                        query.Parameters["@MenuName"].Value = order.SubItems[0].Text;
+                        query.Parameters["@SizeName"].Value = order.SubItems[1].Text;
+                        query.Parameters["@ExtraName"].Value = extra;
+                        query.Parameters["@Amount"].Value = byte.Parse(order.SubItems[3].Text);
+                        query.Parameters["@PersonID"].Value = personID;
+                        query.ExecuteNonQuery();
+                    }
+                    personID++;
+                    order.Remove();
                 }
-                personID++;
-                order.Remove();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
             personID = 1;
         }
@@ -264,10 +264,20 @@ namespace Hamburger
                 MessageBox.Show(ex.Message);
             }
         }
-
+        internal bool extraAdded, menuAdded;
         private void Hamburgerci_VisibleChanged(object sender, EventArgs e)
         {
             Clear();
+            if (extraAdded)
+            {
+                LoadExtras();
+                extraAdded = false;
+            }
+            if (menuAdded)
+            {
+                LoadMenus();
+                menuAdded = false;
+            }
         }
         bool removed;
         private void btnRemoveOrders_Click(object sender, EventArgs e)

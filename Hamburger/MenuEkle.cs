@@ -14,16 +14,51 @@ namespace Hamburger
 {
     public partial class MenuEkle : Form
     {
-        public MenuEkle(SqlConnection sqlHamburger)
+        public MenuEkle(SqlConnection sqlHamburger,SqlCommand query)
         {
             InitializeComponent();
             this.sqlHamburger = sqlHamburger;
+            this.query = query;
         }
         SqlConnection sqlHamburger;
-        bool menuIsNew;
+        SqlCommand query;
+        string qAddNewMenu = "EXEC AddNewMenu @Name,@Price";
+        internal bool menuIsNew, menuAdded;
         private void btnAddMenu_Click(object sender, EventArgs e)
         {
            
+        }
+        void AddNewMenu()
+        {
+            try
+            {
+                if (txtMenuName.Text.Length == 0)
+                {
+                    MessageBox.Show("You Should Define A Name First!");
+                    return;
+                }
+                if (sqlHamburger.State == ConnectionState.Closed)
+                {
+                    sqlHamburger.Open();
+                }
+                if (MessageBox.Show("Are You Sure?\nName=" + txtMenuName.Text + " Price=" + numMenuPrice.Value, "Adding New Menu!", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    query.CommandText = qAddNewMenu;
+                    query.Parameters["@Name"].Value = txtMenuName.Text;
+                    query.Parameters["@Price"].Value = (double)numMenuPrice.Value;
+                    query.ExecuteNonQuery();
+                    menuAdded = true;
+                    MessageBox.Show("New Menu Added!");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                sqlHamburger.Close();
+            }
         }
     }
 }

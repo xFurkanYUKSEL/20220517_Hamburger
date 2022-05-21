@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Configuration;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace Hamburger
 {
@@ -23,17 +25,17 @@ namespace Hamburger
         {
             if (!main.Visible)
             {
-                LoadUserDetails();
+                //LoadUserDetails();
                 this.Show();
                 main.Dispose();
+                main.Close();
+                MessageBox.Show(userID.ToString());
             }
         }
         Main main;
         SqlConnection sqlHamburger = new SqlConnection(ConfigurationManager.ConnectionStrings["hamburger"].ConnectionString);
         SqlCommand query = new SqlCommand();
         SqlDataReader dr;
-        string qGetCurrentUser = "SELECT Username,Password FROM [Current User]";
-        string qUpdateCurrentUser = "UPDATE [Current User] SET Username=@Username,Password=@Password";
         string qGetUserID = "SELECT ID,FirstName,LastName,Title FROM Users WHERE Username=@Username AND Password=@Password";
         int userID;
         string title;
@@ -64,28 +66,23 @@ namespace Hamburger
                     {
                         while (dr.Read())
                         {
+                            SerializeCurrentUser();
                             userID = dr.GetInt32(0);
+                            query.Parameters["@UserID"].Value = userID;
                             MessageBox.Show("Welcome " + dr["FirstName"] + " " + dr["LastName"]);
                             title = dr["Title"].ToString();
+                            main = new Main(userID, title, sqlHamburger, query);
+                            main.VisibleChanged += Main_VisibleChanged;
+                            Hide();
+                            main.Show();
+                            break;
                         }
                         dr.Close();
-                        query.CommandText = qUpdateCurrentUser;
-                        query.Parameters["@Username"].Value = "";
-                        query.Parameters["@Password"].Value = "";
-                        if (chkPassword.Checked)
-                        {
-                            query.Parameters["@Password"].Value = txtPassWord.Text;
-                            query.Parameters["@Username"].Value = txtUserName.Text;
-                        }
-                        else if (chkUsername.Checked)
-                        {
-                            query.Parameters["@Username"].Value = txtUserName.Text;
-                        }
-                        query.ExecuteNonQuery();
                     }
                     else
                     {
                         MessageBox.Show("Username or Password is Wrong!");
+                        return;
                     }
                 }
             }
@@ -96,10 +93,6 @@ namespace Hamburger
             finally
             {
                 sqlHamburger.Close();
-                main = new Main(userID, title, sqlHamburger);
-                main.VisibleChanged += Main_VisibleChanged;
-                Hide();
-                main.Show();
             }
 
         }
@@ -108,51 +101,21 @@ namespace Hamburger
             query.Connection = sqlHamburger;
             query.Parameters.AddWithValue("@Username", txtUserName.Text);
             query.Parameters.AddWithValue("@Password", txtPassWord.Text);
+            query.Parameters.AddWithValue("@UserID", userID);
+            query.Parameters.AddWithValue("@NewOrderID", 1);
+            query.Parameters.AddWithValue("@MenuName", "");
+            query.Parameters.AddWithValue("@SizeName", "");
+            query.Parameters.AddWithValue("@ExtraName", "");
+            query.Parameters.AddWithValue("@Amount", "");
+            query.Parameters.AddWithValue("@PersonID", 1);
+            query.Parameters.AddWithValue("@Name", "");
+            query.Parameters.AddWithValue("@Price", 0.0);
         }
         private void LoginForm_Load(object sender, EventArgs e)
         {
+            DeSerializeCurrentUser();
             Query();
-            LoadUserDetails();
         }
-        void LoadUserDetails()
-        {
-            chkShowHide.Checked = false;
-            try
-            {
-                query.CommandText = qGetCurrentUser;
-                if (sqlHamburger.State == ConnectionState.Closed)
-                {
-                    sqlHamburger.Open();
-                    dr = query.ExecuteReader();
-                    if (dr.HasRows)
-                    {
-                        while (dr.Read())
-                        {
-                            txtUserName.Text = dr["Username"].ToString();
-                            txtPassWord.Text = dr["Password"].ToString();
-                            if (txtPassWord.Text.Length > 0)
-                            {
-                                chkPassword.Checked = true;
-                            }
-                            else if (txtUserName.Text.Length > 0)
-                            {
-                                chkUsername.Checked = true;
-                            }
-                        }
-                    }
-                    dr.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                sqlHamburger.Close();
-            }
-        }
-
         private void chkPassword_CheckedChanged(object sender, EventArgs e)
         {
             if (chkPassword.Checked)
@@ -187,6 +150,63 @@ namespace Hamburger
                         e.Cancel = true;
                     }
                 }
+            }
+        }
+        User currentUser = new User();
+        Stream stream;
+        XmlSerializer xmlSerializer=new XmlSerializer(typeof(User));
+        void SerializeCurrentUser()
+        {
+            try
+            {
+                stream = new FileStream("currentUser.xml", FileMode.Create, FileAccess.Write);
+                currentUser.Username = "";
+                currentUser.Password = "";
+                if (chkPassword.Checked)
+                {
+                    currentUser.Username = txtUserName.Text;
+                    currentUser.Password = txtPassWord.Text;
+                }
+                else if (chkUsername.Checked)
+                {
+                    currentUser.Username = txtUserName.Text;
+                }
+                xmlSerializer.Serialize(stream,currentUser);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                stream.Close();
+            }
+        }
+        void DeSerializeCurrentUser()
+        {
+            chkShowHide.Checked = false;
+            try
+            {
+                stream = new FileStream("currentUser.xml",FileMode.Open,FileAccess.Read);
+                currentUser=(User)xmlSerializer.Deserialize(stream);
+                txtUserName.Text = currentUser.Username;
+                txtPassWord.Text = currentUser.Password;
+                if (txtPassWord.Text.Length > 0)
+                {
+                    chkPassword.Checked = true;
+                }
+                else if (txtUserName.Text.Length > 0)
+                {
+                    chkUsername.Checked = true;
+                }
+            }
+            catch (Exception)
+            {
+                SerializeCurrentUser();
+            }
+            finally
+            {
+                stream.Close();
             }
         }
     }

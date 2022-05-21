@@ -41,6 +41,7 @@ BEGIN
 	VALUES(@Name,@Price)
 END
 GO
+EXEC AddNewExtra '',0
 EXEC AddNewExtra 'KETCHUP',3
 EXEC AddNewExtra 'MAYONNAISE',3
 EXEC AddNewExtra 'MUSTARD',7
@@ -247,6 +248,10 @@ GO
 ALTER TABLE [Order Details]
 ADD [Person ID] INT NOT NULL
 GO
+CREATE VIEW V_OrderTotalPrice
+AS
+SELECT OD.[Order ID], (M.Price*S.Value+SUM(E.Price))*OD.Amount 'Total Price'  FROM [Order Details] OD JOIN Menus M ON M.ID=OD.[Menu ID] LEFT JOIN Extras E ON E.ID=OD.[Extra ID] JOIN Sizes S ON S.ID=OD.[Size ID] GROUP BY M.Price,S.Value,OD.Amount,OD.[Menu ID],OD.[Size ID],OD.[Order ID]
+GO
 ALTER   PROCEDURE [dbo].[NewOrder]
 @OrderID INT,
 @MenuName NVARCHAR(20),
@@ -260,7 +265,7 @@ BEGIN TRY
 INSERT INTO [Order Details]([Order ID],[Menu ID],[Size ID],[Extra ID],Amount,[Person ID])
 VALUES(@OrderID,(SELECT ID FROM Menus WHERE Name=@MenuName),(SELECT ID FROM Sizes WHERE Name=@SizeName),(SELECT ID FROM Extras WHERE Name=@ExtraName),@Amount,@PersonID)
 UPDATE Orders
-SET [Total Price]=(SELECT (M.Price*S.Value+SUM(E.Price))*OD.Amount  FROM [Order Details] OD JOIN Menus M ON M.ID=OD.[Menu ID] JOIN Extras E ON E.ID=OD.[Extra ID] JOIN Sizes S ON S.ID=OD.[Size ID] WHERE OD.[Order ID]=@OrderID GROUP BY M.Price,S.Value,OD.Amount,OD.[Menu ID],OD.[Size ID])
+SET [Total Price]=(SELECT SUM([Total Price]) FROM V_OrderTotalPrice WHERE [Order ID]=@OrderID)
 WHERE ID=@OrderID
 COMMIT
 END TRY
@@ -270,4 +275,6 @@ END CATCH
 GO
 CREATE UNIQUE INDEX IDX_OrderDetails
 ON [Order Details]([Order ID],[Menu ID],[Size ID],[Extra ID],Amount,[Person ID])
+GO
+DROP TABLE [Current User]
 GO

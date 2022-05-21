@@ -15,37 +15,63 @@ namespace Hamburger
     public partial class Main : Form
     {
         SqlConnection sqlHamburger;
+        SqlCommand query;
         public Hamburgerci siparis;
         public TumSiparisler tumSiparisler;
         public MenuEkle menuEkle;
         public ExtraMalzemeEkle extraMalzemeEkle;
         public Payment payment;
-        public Main(int userID,string title,SqlConnection sqlHamburger)
+        public Main(int userID,string title,SqlConnection sqlHamburger,SqlCommand query)
         {
             InitializeComponent();
             this.userID = userID;
             this.title = title;
             this.sqlHamburger = sqlHamburger;
+            this.query = query;
         }
         int userID;
         string title;
         public void Main_Load(object sender, EventArgs e)
         {
-            siparis = new Hamburgerci(userID,sqlHamburger);
-            tumSiparisler = new TumSiparisler(userID);
-            menuEkle = new MenuEkle(sqlHamburger);
-            extraMalzemeEkle = new ExtraMalzemeEkle(sqlHamburger);
+            siparis = new Hamburgerci(userID,sqlHamburger,query);
+            tumSiparisler = new TumSiparisler(userID,sqlHamburger,query);
+            menuEkle = new MenuEkle(sqlHamburger,query);
+            extraMalzemeEkle = new ExtraMalzemeEkle(sqlHamburger,query);
             payment = new Payment();
-            tumSiparisler.VisibleChanged += TumSiparisler_VisibleChanged;
-            payment.VisibleChanged += Payment_VisibleChanged;
-            MdiChildren(new Form[] { siparis, tumSiparisler, menuEkle, extraMalzemeEkle, payment });
+            SetMdiChildren(new Form[] { siparis, tumSiparisler, menuEkle, extraMalzemeEkle, payment });
             siparis.Show();
             if (title!="Admin")
             {
                 ürünYönetimiToolStripMenuItem.Visible = false;
             }
         }
-        void MdiChildren(Form[] mdiChildren)
+        void ChildVisibleChanged()
+        {
+            tumSiparisler.VisibleChanged += TumSiparisler_VisibleChanged;
+            payment.VisibleChanged += Payment_VisibleChanged;
+            extraMalzemeEkle.VisibleChanged += ExtraMalzemeEkle_VisibleChanged;
+            menuEkle.VisibleChanged += MenuEkle_VisibleChanged;
+        }
+
+        private void MenuEkle_VisibleChanged(object sender, EventArgs e)
+        {
+            if (menuEkle.menuAdded)
+            {
+                siparis.menuAdded = true;
+                menuEkle.menuAdded = false;
+            }
+        }
+
+        private void ExtraMalzemeEkle_VisibleChanged(object sender, EventArgs e)
+        {
+            if (extraMalzemeEkle.extraAdded)
+            {
+                siparis.extraAdded = true;
+                extraMalzemeEkle.extraAdded = false;
+            }
+        }
+
+        void SetMdiChildren(Form[] mdiChildren)
         {
             foreach (Form child in mdiChildren)
             {
@@ -55,9 +81,10 @@ namespace Hamburger
         }
         private void TumSiparisler_VisibleChanged(object sender, EventArgs e)
         {
-            if (!tumSiparisler.Visible)
+            if (tumSiparisler.payment)
             {
                 payment.Show();
+                tumSiparisler.payment = false;
             }
         }
 
@@ -79,7 +106,7 @@ namespace Hamburger
         {
             HideAll();
             siparis.Show();
-            siparis.cmbMenu.ResetText();
+            siparis.cmbMenu.SelectedIndex=-1;
         }
         void HideAll()
         {
@@ -87,6 +114,7 @@ namespace Hamburger
             tumSiparisler.Hide();
             extraMalzemeEkle.Hide();
             menuEkle.Hide();
+            payment.Hide();
         }
 
         private void tümSiparişlerToolStripMenuItem_Click(object sender, EventArgs e)

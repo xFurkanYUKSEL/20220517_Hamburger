@@ -17,14 +17,16 @@ namespace Hamburger
     {
         SqlDataAdapter daHamburger = new SqlDataAdapter("SELECT O.ID,O.[Order Date],O.[Total Price],S.State FROM Orders O JOIN States S ON S.ID=O.[Order State ID] WHERE [User ID]=@UserID", ConfigurationManager.ConnectionStrings["hamburger"].ConnectionString);
         DataTable dtOrders = new DataTable("My Orders");
-        SqlConnection conHamburger = new SqlConnection(ConfigurationManager.ConnectionStrings["hamburger"].ConnectionString);
-        SqlCommand query = new SqlCommand();
+        SqlConnection sqlHamburger;
+        SqlCommand query;
         string qMonthly = "SELECT SUM([Total Price]) FROM [Orders Last 30 Days] WHERE [User ID]=@UserID";
         string qTotalRemaining = "SELECT SUM([Total Price]) FROM Orders WHERE [User ID]=@UserID AND [Order State ID]=1";
-        public TumSiparisler(int userID)
+        public TumSiparisler(int userID,SqlConnection sqlHamburger,SqlCommand query)
         {
             InitializeComponent();
             this.userID = userID;
+            this.sqlHamburger = sqlHamburger;
+            this.query = query;
             VisibleChanged += TumSiparisler_VisibleChanged;
         }
         int userID;
@@ -34,14 +36,11 @@ namespace Hamburger
         }
         void MyOrdersLoad()
         {
-            daHamburger.SelectCommand.Parameters.AddWithValue("@UserID", userID);
-            query.Parameters.AddWithValue("@UserID", userID);
-            daHamburger.Fill(dtOrders);
+            daHamburger.SelectCommand.Parameters.AddWithValue("@UserID",userID);
             query.CommandText = qTotalRemaining;
-            query.Connection = conHamburger;
-            conHamburger.Open();
+            sqlHamburger.Open();
             lblRemainingPayment.Text = query.ExecuteScalar().ToString();
-            conHamburger.Close();
+            sqlHamburger.Close();
         }
 
         public void MyOrders()
@@ -54,16 +53,14 @@ namespace Hamburger
             lblTotalOrders.Text = dtOrders.Rows.Count.ToString();
             dgvMyOrders.AutoResizeColumns();
             dgvMyOrders.AutoResizeRows();
-            if (conHamburger.State==ConnectionState.Closed)
+            if (sqlHamburger.State==ConnectionState.Closed)
             {
-                conHamburger.Open();
+                sqlHamburger.Open();
                 lblMonthlyTotalPrice.Text=query.ExecuteScalar().ToString();
             }
-            conHamburger.Close();
             query.CommandText = qTotalRemaining;
-            conHamburger.Open();
             lblRemainingPayment.Text = query.ExecuteScalar().ToString();
-            conHamburger.Close();
+            sqlHamburger.Close();
         }
 
         private void TumSiparisler_VisibleChanged(object sender, EventArgs e)
@@ -73,9 +70,10 @@ namespace Hamburger
                 MyOrders();
             }
         }
-
+        internal bool payment;
         private void btnPayment_Click(object sender, EventArgs e)
         {
+            payment = true;
             Hide();
         }
     }

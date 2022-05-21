@@ -94,6 +94,7 @@
     <Compile Include="TumSiparisler.Designer.cs">
       <DependentUpon>TumSiparisler.cs</DependentUpon>
     </Compile>
+    <Compile Include="User.cs" />
     <EmbeddedResource Include="ExtraMalzemeEkle.resx">
       <DependentUpon>ExtraMalzemeEkle.cs</DependentUpon>
     </EmbeddedResource>
